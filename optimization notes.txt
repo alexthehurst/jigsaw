@@ -1,0 +1,186 @@
+INITIAL RUN
+
+>>> profile.run("from jigsaw import *; solve_once((40, 10), verbose=False)",
+            filename=None, sort="tottime")
+         2678016 function calls in 10.738 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+   841200    5.155    0.000    8.799    0.000 jigsaw.py:89(is_exposed)
+     2103    1.742    0.001   10.542    0.005 jigsaw.py:35(<listcomp>)
+   603732    1.379    0.000    1.379    0.000 jigsaw.py:91(<listcomp>)
+   603732    1.180    0.000    1.180    0.000 :0(max)
+   603732    1.083    0.000    1.086    0.000 jigsaw.py:73(neighbors)
+     2103    0.070    0.000   10.654    0.005 jigsaw.py:147(test_or_discard)
+     2094    0.020    0.000    0.034    0.000 random.py:220(_randbelow)
+      400    0.018    0.000    0.018    0.000 jigsaw.py:41(<listcomp>)
+        1    0.015    0.015   10.730   10.730 jigsaw.py:174(solve)
+       22    0.011    0.001    0.046    0.002 random.py:258(shuffle)
+     2103    0.010    0.000   10.552    0.005 jigsaw.py:34(exposed_coordinates)
+     3070    0.009    0.000    0.009    0.000 :0(getrandbits)
+
+*********************
+
+OPTIMIZATION: I saved the list of exposed coordinates as an attribute, and only recalculated it when a piece was placed
+OPTIMIZATION: I saved the list of empty coordinates as an attribute, and only recalculated it when a piece was placed
+OPTIMIZATION: I recalculated the empty coordinates as a subset of the existing list, instead of the whole puzzle space
+OPTIMIZATION: I recalculated the exposed coordinates as a subset of the empty coordinates, instead of the whole puzzle space
+
+is_exposed went from 841000 function calls to 80000 function calls (90% reduction)
+Runtime went from 10.7 seconds to 1.4 seconds
+
+>>> profile.run("from jigsaw import *; solve_once((40, 10), verbose=False)", 
+            filename=None, sort="tottime")
+         346777 function calls (346772 primitive calls) in 1.476 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+    79800    0.637    0.000    1.123    0.000 jigsaw.py:96(is_exposed)
+    79800    0.180    0.000    0.180    0.000 jigsaw.py:98(<listcomp>)
+      400    0.174    0.000    1.297    0.003 jigsaw.py:40(<listcomp>)
+    79800    0.158    0.000    0.158    0.000 :0(max)
+    79800    0.146    0.000    0.148    0.000 jigsaw.py:80(neighbors)
+     2638    0.053    0.000    1.365    0.001 jigsaw.py:154(test_or_discard)
+     2624    0.023    0.000    0.039    0.000 random.py:220(_randbelow)
+        1    0.014    0.014    1.461    1.461 jigsaw.py:181(solve)
+       32    0.013    0.000    0.052    0.002 random.py:258(shuffle)
+     3811    0.010    0.000    0.010    0.000 :0(getrandbits)
+      400    0.010    0.000    0.010    0.000 jigsaw.py:36(<listcomp>)
+     2639    0.008    0.000    0.012    0.000 jigsaw.py:177(draw_random)
+
+
+*********************
+
+OPTIMIZATION: I unrolled the list comprehension looking at neighbors into a for loop, so that the function could return true as soon as any of them was found to be filled (only will help for pieces that are exposed)
+IMPROVEMENT: Helped a LOT! Cumulative time for is_exposed dropped from .637s to .346s
+
+>>> profile.run("from jigsaw import *; solve_once((40, 10), verbose=False)", 
+            filename=None, sort="tottime")
+         184341 function calls (184336 primitive calls) in 0.841 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+    79800    0.346    0.000    0.489    0.000 jigsaw.py:96(is_exposed)
+      400    0.183    0.000    0.672    0.002 jigsaw.py:40(<listcomp>)
+    79800    0.141    0.000    0.143    0.000 jigsaw.py:80(neighbors)
+     2302    0.052    0.000    0.740    0.000 jigsaw.py:157(test_or_discard)
+     2290    0.022    0.000    0.037    0.000 random.py:220(_randbelow)
+       28    0.013    0.000    0.050    0.002 random.py:258(shuffle)
+        1    0.013    0.013    0.829    0.829 jigsaw.py:184(solve)
+      400    0.010    0.000    0.010    0.000 jigsaw.py:36(<listcomp>)
+     3339    0.009    0.000    0.009    0.000 :0(getrandbits)
+     2303    0.007    0.000    0.011    0.000 jigsaw.py:180(draw_random)
+     3839    0.007    0.000    0.007    0.000 :0(append)
+     2290    0.006    0.000    0.006    0.000 :0(bit_length)
+
+*********************
+
+OPTIMIZATION: convert is_exposed() to an attribute. Only update a coordinate's is_exposed attribute when notified that a neighbor has been placed next to the coordinate.
+IMPROVEMENT: is_exposed() went from 79800 calls and .346s to has_new_neighbor(), with 1500 calls and .002s. Program run went from 184341 calls and .841s to 25808 calls and .186s
+
+
+>>> profile.run("from jigsaw import *; solve_once((40, 10), verbose=False)", 
+            filename=None, sort="tottime")
+         25808 function calls (25803 primitive calls) in 0.186 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+     2203    0.049    0.000    0.097    0.000 jigsaw.py:165(test_or_discard)
+     2193    0.021    0.000    0.035    0.000 random.py:220(_randbelow)
+        1    0.012    0.012    0.172    0.172 jigsaw.py:192(solve)
+       24    0.012    0.000    0.047    0.002 random.py:258(shuffle)
+      400    0.010    0.000    0.010    0.000 jigsaw.py:36(<listcomp>)
+     3207    0.009    0.000    0.009    0.000 :0(getrandbits)
+      400    0.007    0.000    0.007    0.000 jigsaw.py:40(<listcomp>)
+     2204    0.007    0.000    0.010    0.000 jigsaw.py:188(draw_random)
+     3744    0.007    0.000    0.007    0.000 :0(append)
+     2193    0.006    0.000    0.006    0.000 :0(bit_length)
+      400    0.005    0.000    0.015    0.000 jigsaw.py:110(fill)
+      400    0.005    0.000    0.007    0.000 jigsaw.py:81(neighbors)
+
+*********************
+
+CHANGED TEST TO A LARGER CASE (50x40 = 2000 pieces)
+
+>>> profile.run("from jigsaw import *; solve_once((50, 40), verbose=False)", 
+            filename=None, sort="tottime")
+         233251 function calls in 2.223 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+    23641    0.932    0.000    1.462    0.000 jigsaw.py:165(test_or_discard)
+    23620    0.215    0.000    0.368    0.000 random.py:220(_randbelow)
+     2000    0.188    0.000    0.188    0.000 jigsaw.py:36(<listcomp>)
+     2000    0.147    0.000    0.147    0.000 jigsaw.py:40(<listcomp>)
+        1    0.122    0.122    2.192    2.192 jigsaw.py:192(solve)
+       46    0.114    0.002    0.481    0.010 random.py:258(shuffle)
+    33915    0.092    0.000    0.092    0.000 :0(getrandbits)
+    23642    0.070    0.000    0.106    0.000 jigsaw.py:188(draw_random)
+    23620    0.060    0.000    0.060    0.000 :0(bit_length)
+    31512    0.054    0.000    0.054    0.000 :0(append)
+    23642    0.037    0.000    0.037    0.000 :0(pop)
+    21733    0.035    0.000    0.035    0.000 :0(len)
+
+
+*********************
+
+
+OPTIMIZATION: Add a tuple to Coord which contains the coordinates, in addition to the x and y attributes. Then, in test_or_discard, compare the coordinates tuple for the Piece with the coordinates tuple for the Coord, instead of comparing two separate integer attributes.
+IMPROVEMENT: reduce the tottime for test_or_discard from ~.932 to ~.682. Program run time down 16%.
+
+>>> profile.run("from jigsaw import *; solve_once((50, 40), verbose=False)", 
+            filename=None, sort="tottime")
+         200758 function calls (200753 primitive calls) in 1.857 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+    19756    0.682    0.000    1.220    0.000 jigsaw.py:166(test_or_discard)
+     2000    0.194    0.000    0.194    0.000 jigsaw.py:36(<listcomp>)
+    19737    0.177    0.000    0.299    0.000 random.py:220(_randbelow)
+     2000    0.160    0.000    0.160    0.000 jigsaw.py:40(<listcomp>)
+        1    0.102    0.102    1.819    1.819 jigsaw.py:193(solve)
+       42    0.095    0.002    0.394    0.009 random.py:258(shuffle)
+    28182    0.074    0.000    0.074    0.000 :0(getrandbits)
+    19757    0.059    0.000    0.089    0.000 jigsaw.py:189(draw_random)
+    19737    0.048    0.000    0.048    0.000 :0(bit_length)
+    27627    0.047    0.000    0.047    0.000 :0(append)
+    19757    0.030    0.000    0.030    0.000 :0(pop)
+    17842    0.029    0.000    0.029    0.000 :0(len)
+     2000    0.025    0.000    0.072    0.000 jigsaw.py:111(fill)
+
+
+*********************
+
+
+OPTIMIZATION: in test_or_discard, instead of adding 1 for every try, use the enumerated incrementer and just add the total tries when the piece is found or not found.
+IMPROVEMENT: test_or_discard time dropped from .682 to .465. I guess adding really isn't that slow.
+
+>>> profile.run("from jigsaw import *; solve_once((50, 40), verbose=False)", 
+            filename=None, sort="tottime")
+         233915 function calls in 1.763 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+    23712    0.465    0.000    1.011    0.000 jigsaw.py:166(test_or_discard)
+    23689    0.211    0.000    0.356    0.000 random.py:220(_randbelow)
+     2000    0.197    0.000    0.197    0.000 jigsaw.py:36(<listcomp>)
+     2000    0.150    0.000    0.150    0.000 jigsaw.py:40(<listcomp>)
+        1    0.123    0.123    1.738    1.738 jigsaw.py:196(solve)
+       50    0.115    0.002    0.471    0.009 random.py:258(shuffle)
+    34070    0.088    0.000    0.088    0.000 :0(getrandbits)
+    23713    0.071    0.000    0.108    0.000 jigsaw.py:192(draw_random)
+    23689    0.057    0.000    0.057    0.000 :0(bit_length)
+    31583    0.053    0.000    0.053    0.000 :0(append)
+    23713    0.037    0.000    0.037    0.000 :0(pop)
+    21812    0.036    0.000    0.036    0.000 :0(len)
+
+*********************
+
+CONCLUSION: Original test (40, 10) now runs in 0.210s, which is 2% the time of the first run. Nice!
