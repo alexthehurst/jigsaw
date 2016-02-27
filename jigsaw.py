@@ -469,7 +469,6 @@ class Reporter:
 
 
 def main(dimensions=(5, 5), initial_pieces=1, verbose=True):
-    import argparse
 
     parser = argparse.ArgumentParser(description='All the tedium of a jigsaw '
                                                  'puzzle, from the command '
