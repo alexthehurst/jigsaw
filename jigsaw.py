@@ -489,6 +489,10 @@ def main(dimensions=(5, 5), initial_pieces=1, verbose=True):
                         help='The number of pieces to seed the board with ('
                              'default 1)')
 
+    parser.add_argument('--labels',
+                        action='store_true', default=False,
+                        help='Show numeric labels along the puzzle axes')
+
     parser.add_argument('--coord',
                         action='store_const', const='coord',
                         dest='mode', default='pile',
