@@ -58,16 +58,20 @@ class Puzzle(list):
         An ASCII representation of the puzzle's state
         :return: str
         """
+
         full_repr = ''
 
         for i, row in enumerate(range(self.ly), start=1):
-            row_repr = str(self.ly - i)
+            row_repr = ' '
+            if self.reporter.labels:
+                row_repr += str(self.ly - i)
             for col in range(self.lx):
                 row_repr += self[col][self.max_y - row].glyph()
             full_repr += row_repr + '\n'
-
-        full_repr += ' ' + ''.join([self.gridlabel(a) for a in range(self.lx)])
-        full_repr += '\n'
+        if self.reporter.labels:
+            full_repr += (' ' +
+                          ''.join([self.gridlabel(a) for a in range(self.lx)]))
+            full_repr += '\n'
 
         return full_repr
 
@@ -327,7 +331,7 @@ class Pool(list):
         return self.pop()
 
 
-def solve(puzzle, seed_piece_count=1, mode='pile'):
+def solve(puzzle, labels=False, seed_piece_count=1, mode='pile'):
     """
     Lay down one or more pieces to start the puzzle, then iteratively try to
     attach each piece to the finished section until they have all been placed.
@@ -339,6 +343,7 @@ def solve(puzzle, seed_piece_count=1, mode='pile'):
     """
 
     puzzle.reporter.mode = mode
+    puzzle.reporter.labels = labels
     draw_pile = Pool(puzzle)
     discard_pile = Pool()  # Empty
 
@@ -383,10 +388,11 @@ class Reporter:
             exit()
         return response
 
-    def __init__(self, puzzle, mode='pile'):
+    def __init__(self, puzzle, mode='pile', labels=False):
         self.puzzle = puzzle
         self.puzzle.reporter = self
         self.mode = mode
+        self.labels = labels
 
     def failed_coord(self, coord, piece):
         """
@@ -511,10 +517,11 @@ def main(dimensions=(5, 5), initial_pieces=1, verbose=True):
     dimensions = tuple(prefs.dimensions)
     seed_piece_count = prefs.seed_piece_count
     mode = prefs.mode
+    labels = prefs.labels
 
     puzzle = Puzzle(dimensions)
 
-    solve(puzzle, mode=mode, seed_piece_count=seed_piece_count)
+    solve(puzzle, mode=mode, labels=labels, seed_piece_count=seed_piece_count)
 
 
 if __name__ == '__main__':
