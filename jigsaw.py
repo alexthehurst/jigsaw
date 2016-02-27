@@ -430,7 +430,7 @@ class Reporter:
         :param piece:
         :return:
         """
-        if self.mode in ['coord', 'piece']:
+        if self.mode in ['coord', 'piece', 'placed']:
             print(self.puzzle)
             if piece.is_seed:
                 print("Placed Piece %s at (%s, %s) [seed piece]" %
@@ -499,6 +499,12 @@ def main(dimensions=(5, 5), initial_pieces=1, verbose=True):
 
     parser.add_argument('--piece',
                         action='store_const', const='piece',
+                        dest='mode', default='pile',
+                        help='Display the grid after failing to find a spot '
+                             'for a piece')
+
+    parser.add_argument('--placed',
+                        action='store_const', const='placed',
                         dest='mode', default='pile',
                         help='Display the grid after placing any piece')
 
