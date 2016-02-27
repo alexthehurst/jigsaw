@@ -452,7 +452,6 @@ class Reporter:
             print("*** SHAKE SHAKE SHAKE ***\n"
                   "Shaking the bag and doing another pass. %s pieces are "
                   "placed, %s pieces remaining.\n"
-                  "*** SHAKE SHAKE SHAKE ***"
                   % (len(self.puzzle.all_items) - len(self.puzzle.empty_coords),
                      len(pile)))
             self.wait()
@@ -465,8 +464,8 @@ class Reporter:
         if self.mode != 'stats':
             print(self.puzzle)
         print("Solved after %s comparisons" % self.puzzle.tries)
-        print("at 1 sec per comparison, it would have taken %s hours" % (
-            self.puzzle.tries / 3600.0))
+        print("at 1 sec per comparison, it would have taken %s hours." % (
+            round(self.puzzle.tries / 3600.0, 2)))
 
 
 def main(dimensions=(5, 5), initial_pieces=1, verbose=True):
@@ -496,7 +495,7 @@ def main(dimensions=(5, 5), initial_pieces=1, verbose=True):
     parser.add_argument('--coord',
                         action='store_const', const='coord',
                         dest='mode', default='pile',
-                        help='Display the grid after trying a piece in any '
+                        help='Display the grid each time a piece is tried in a'
                              'spot')
 
     parser.add_argument('--piece',
